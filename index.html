@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz</title>
+  <style>
+    .quiz-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .result {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+</body>
+<script src="https://www.unpkg.com/react@18.2.0/umd/react.development.js"></script>
+<script src="https://www.unpkg.com/react-dom@18.2.0/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+  let reactRoot = ReactDOM.createRoot(document.getElementById('root'));
+
+  let quizQues = {
+    questions:[
+      {
+        id: 1,
+        question: 'What is the capital of India?',
+        answer: ['Delhi', 'Chennai', 'Bangalore','Mumbai'],
+        correctAnswer: 'Delhi',
+      },
+      {
+        id: 2,
+        question: 'What is the capital of France?',
+        answer: ['Paris', 'London', 'Berlin', 'Rome'],
+        correctAnswer: 'Paris',
+      },
+      {
+        id: 3,
+        question: 'What is the largest planet in our solar system?',
+        answer: ['Earth', 'Venus', 'Jupiter', 'Mars'],
+        correctAnswer: 'Jupiter',
+      },
+      {
+        id: 4,
+        question: 'How many continents are there in the world?',
+        answer: ['Five', 'Eight', 'Seven', 'Nine'],
+        correctAnswer: 'Seven',   
+      },
+      {
+        id: 5,
+        question: 'What is the national bird of India?',
+        answer: ['Parrot', 'Peacock', 'Eagle', 'Crow'],
+        correctAnswer: 'Peacock',   
+      }
+    ]
+  }
+
+  function Quiz(){
+    let [activeQuestion, setActiveQuestion] = React.useState(0);
+    let [selectedAnswer, setSelectedAnswer] = React.useState(null);
+    let [showScore, setShowScore] = React.useState(false);
+    let [result, setResult] = React.useState({
+      score: 0,
+      correctAnswers: 0,
+      wrongAnswers: 0
+    });
+
+    let onAnswerSelected = (selectedAnswer) => {
+      setSelectedAnswer(selectedAnswer) 
+    }
+
+    let onClickNext = (e) => {
+      e.preventDefault();
+      setResult((prev) =>
+        selectedAnswer === quizQues.questions[activeQuestion].correctAnswer
+          ? {
+              ...prev,
+              score: prev.score + 1,
+              correctAnswers: prev.correctAnswers + 1,
+            }
+          : { ...prev, wrongAnswers: prev.wrongAnswers + 1 }
+      );
+
+      if (activeQuestion < quizQues.questions.length - 1) {
+        setActiveQuestion((prev) => prev + 1);
+        setSelectedAnswer(null);
+      } else {
+        setShowScore(true);
+      }
+    }
+
+    let resetQuiz = () => {
+        setActiveQuestion(0);
+        setSelectedAnswer(null);
+        setShowScore(false);
+    };
+
+    let {questions} = quizQues;
+    let {question, answer} = questions[activeQuestion];
+
+    return(
+      <form>
+        {!showScore ? (
+          <div className='quiz-container'>
+            <h1 style={{color: 'red',fontSize: '40px'}}>Quiz App</h1>
+            <h3 style={{fontSize:'20px'}}>{questions[activeQuestion].id}. {question}</h3>
+            <div>
+              {answer.map((choice, index) => (
+                      <div key={index} style={{marginBottom:'10px'}}>
+                        <input
+                            type="radio"
+                            name="choice"
+                            value={choice}
+                            checked={selectedAnswer === choice}
+                            onChange={() => onAnswerSelected(choice)}
+                        />
+                        <label style={{padding:'5px 10px',fontSize:'18px'}}>{choice}</label>
+                      </div>
+            ))}
+            </div>
+            <button onClick={onClickNext} 
+                    style={{ padding:'5px 15px',
+                             fontSize:'18px',
+                             border: 'none',
+                             background: 'green',
+                             color: 'white',
+                             marginTop: '10px'
+            }}>
+              {activeQuestion === quizQues.questions.length - 1 ? 'Submit' : 'Next'}
+            </button>
+          </div>
+        ) : (
+          <div className="result">
+            <h3 style={{fontSize: '40px',color: 'blue'}}>Result</h3>
+            <div style={{fontSize: '25px'}}>
+              <p>
+              Total Question: <span>{questions.length}</span>
+            </p>
+            <p>
+              Total Score:<span> {result.score}</span>
+            </p>
+            <p>
+              Correct Answers:<span> {result.correctAnswers}</span>
+            </p>
+            <p>
+              Wrong Answers:<span> {result.wrongAnswers}</span>
+            </p>
+            </div>
+            <button onClick={resetQuiz}
+                    style={{ padding:'5px 15px',
+                            fontSize:'17px',
+                            border: 'none',
+                            background: 'red',
+                            color: 'white',
+                            marginTop: '10px'
+                    }}>
+            Restart Quiz</button>
+          </div>
+        )}
+      </form>
+    )
+  }
+  reactRoot.render(<Quiz />)
+</script>
+</html>
